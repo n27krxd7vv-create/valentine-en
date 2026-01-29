@@ -6,84 +6,201 @@
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
     <meta http-equiv="Pragma" content="no-cache">
     <meta http-equiv="Expires" content="0">
+    
     <title>Digital Valentine | Message</title>
     <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+    
     <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Imperial+Script&family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
 
     <style>
-        :root { --bg-deep: #0f0c1d; --accent: #ff2d75; --blue-glow: #4facfe; }
+        :root {
+            --bg-deep: #0f0c1d;
+            --accent: #ff2d75;
+            --blue-glow: #4facfe;
+            --glass: rgba(255, 255, 255, 0.05);
+            --glass-border: rgba(255, 255, 255, 0.15);
+        }
+
         body, html {
-            margin: 0; padding: 0; width: 100%; min-height: 100dvh;
+            margin: 0; padding: 0; width: 100%; min-height: 100vh; 
             font-family: 'Inter', system-ui, -apple-system, sans-serif;
             background-color: #0f0c1d;
             background-image: radial-gradient(circle at center, #1e1333 0%, #0f0c1d 100%);
-            background-attachment: fixed; background-size: cover; background-repeat: no-repeat;
+            background-attachment: fixed; background-size: cover;
             color: white; overflow-x: hidden; overflow-y: auto;
-            display: flex; justify-content: center; align-items: center; touch-action: manipulation;
+            display: flex; justify-content: center; align-items: center; flex-direction: column;
         }
+
         .bg-elements { position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 1; overflow: hidden; }
-        .floating-heart { position: absolute; color: var(--accent); opacity: 0.8; text-shadow: 0 0 10px rgba(255, 45, 117, 0.5); animation: floatUp linear infinite; }
-        @keyframes floatUp { 0% { transform: translateY(110vh) scale(0.5) rotate(0deg); opacity: 0; } 10% { opacity: 0.8; } 100% { transform: translateY(-10vh) scale(1.2) rotate(360deg); opacity: 0; } }
-        #main-content {
-            z-index: 20; width: 90%; max-width: 420px; text-align: center;
-            opacity: 1; transform: translateY(0); position: relative; transition: opacity 0.8s ease;
-            padding-top: 40px; padding-bottom: 60px; margin: auto;
+        .floating-heart {
+            position: absolute; color: var(--accent); opacity: 0.8; 
+            text-shadow: 0 0 10px rgba(255, 45, 117, 0.5);
+            animation: floatUp linear infinite;
         }
-        .flying-away { animation: flyAway 2s cubic-bezier(0.68, -0.55, 0.265, 1.55) forwards !important; pointer-events: none; }
-        @keyframes flyAway { 0% { transform: translateY(0) scale(1); opacity: 1; } 100% { transform: translateY(-200vh) scale(0.5); opacity: 0; } }
-        h1 {
-            font-family: 'Imperial Script', cursive; font-size: 55px; margin: 0 0 20px 0; 
-            background: linear-gradient(to right, #fff, var(--accent)); -webkit-background-clip: text; -webkit-text-fill-color: transparent;
-            text-transform: none; font-weight: 400; padding: 0 20px; line-height: 1.2;
+        @keyframes floatUp {
+            0% { transform: translateY(110vh) scale(0.5) rotate(0deg); opacity: 0; }
+            10% { opacity: 0.8; }
+            100% { transform: translateY(-10vh) scale(1.2) rotate(360deg); opacity: 0; }
         }
+
+        /* --- MAIN CARD --- */
         .letter-card {
-            width: 100%; aspect-ratio: 4 / 5; display: flex; flex-direction: column; align-items: center; justify-content: flex-start;
-            padding: 30px 25px; margin-bottom: 30px; box-sizing: border-box; border-radius: 25px; 
-            background: rgba(30, 19, 51, 0.6); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
-            position: relative; box-shadow: 0 0 60px rgba(79, 172, 254, 0.4), 0 0 60px rgba(255, 45, 117, 0.4);
+            z-index: 20; 
+            width: 90%; 
+            max-width: 350px; 
+            aspect-ratio: 4 / 5; 
+            height: auto; 
+            
+            display: flex; flex-direction: column; align-items: center; justify-content: flex-start;
+            padding: 30px 25px; 
+            margin-top: 20px; margin-bottom: 20px;
+            box-sizing: border-box;
+            border-radius: 25px; 
+            
+            background: rgba(30, 19, 51, 0.6); 
+            backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+            
+            position: relative;
+            
+            box-shadow: 0 0 60px rgba(79, 172, 254, 0.4), 
+                        0 0 60px rgba(255, 45, 117, 0.4);
+            
+            opacity: 0; transform: translateY(20px);
+            animation: fadeInCard 1.5s ease-out forwards 0.5s;
         }
+
+        /* Gradient Border */
         .letter-card::after {
-            content: ""; position: absolute; inset: 0; border-radius: 25px; padding: 3px; 
+            content: "";
+            position: absolute; inset: 0; border-radius: 25px; padding: 3px; 
             background: linear-gradient(135deg, var(--blue-glow), var(--accent)); 
-            -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0); -webkit-mask-composite: xor; mask-composite: exclude; pointer-events: none; 
+            -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+            -webkit-mask-composite: xor; mask-composite: exclude; pointer-events: none; 
         }
+
+        @keyframes fadeInCard { to { opacity: 1; transform: translateY(0); } }
+
+        /* --- TITLE (IMPERIAL SCRIPT) --- */
+        h1 {
+            font-family: 'Imperial Script', cursive;
+            font-weight: 400; 
+            font-size: 45px; 
+            margin: 0 0 15px 0; 
+            text-transform: none; 
+            
+            padding: 0 20px; 
+            
+            background: linear-gradient(to right, #fff, var(--accent)); 
+            -webkit-background-clip: text; 
+            -webkit-text-fill-color: transparent; 
+            text-align: center;
+            display: inline-block; flex-shrink: 0; 
+            line-height: 1.2;
+        }
+
+        /* --- TEXT BOX --- */
         .message-box-style {
-            width: 100%; flex: 1; background: rgba(0, 0, 0, 0.3); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 15px; padding: 15px; color: white; font-family: inherit; font-size: 16px; line-height: 1.5; font-weight: 300; box-sizing: border-box; text-align: center; overflow-y: auto; display: flex; flex-direction: column; justify-content: flex-start; align-items: center;
+            width: 100%; 
+            flex: 1; 
+            
+            background: rgba(0, 0, 0, 0.3); 
+            border: 1px solid rgba(255, 255, 255, 0.1); 
+            border-radius: 15px;
+            padding: 15px; 
+            color: white; 
+            font-family: inherit; font-size: 15px; line-height: 1.5; font-weight: 300;
+            box-sizing: border-box; 
+            text-align: center;
+            
+            overflow-y: auto; 
+            
+            display: flex; flex-direction: column; justify-content: flex-start; align-items: center;
         }
-        .message-container { display: none; } .smart-textarea { display: none; resize: none; outline: none; }
-        .message-container.active { display: flex !important; } .smart-textarea.active { display: flex !important; }
+
+        .message-container { display: none; }
+        .smart-textarea { display: none; resize: none; outline: none; }
+        
+        .message-container.active { display: flex; }
+        .smart-textarea.active { display: flex; }
+
         .smart-textarea:focus { border-color: var(--accent); background: rgba(0, 0, 0, 0.4); }
         .smart-textarea::placeholder { color: rgba(255, 255, 255, 0.4); }
-        .typewriter-wrapper { width: 100%; text-align: center; margin: auto 0; white-space: pre-wrap; }
+
+        .typewriter-wrapper { width: 100%; text-align: center; margin: auto 0; }
         .cursor { display: inline-block; width: 2px; height: 18px; background-color: var(--accent); animation: blink 1s infinite; vertical-align: middle; margin-left: 2px; }
         @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0; } }
-        .bottom-decoration { margin-top: 15px; margin-bottom: 0; font-size: 24px; opacity: 1; flex-shrink: 0; }
+
+        /* Heart decoration */
+        .bottom-decoration { 
+            margin-top: 15px; margin-bottom: 0;
+            font-size: 22px; opacity: 0; transition: opacity 1s ease; flex-shrink: 0; 
+        }
+
+        /* --- BUTTON --- */
         .btn-continue {
-            width: 100%; background: linear-gradient(90deg, #ff2d75, #bc26b7); border: none; padding: 18px; border-radius: 100px; color: white; font-weight: 600; font-size: 18px; cursor: pointer; box-shadow: 0 15px 30px rgba(255, 45, 117, 0.3); transition: transform 0.2s, box-shadow 0.2s; -webkit-tap-highlight-color: transparent; opacity: 0; pointer-events: none; 
+            z-index: 20; width: 90%; max-width: 350px; 
+            background: linear-gradient(90deg, #ff2d75, #bc26b7); border: none; padding: 18px; border-radius: 100px; 
+            color: white; font-weight: 600; font-size: 18px; cursor: pointer; 
+            box-shadow: 0 15px 30px rgba(255, 45, 117, 0.3); 
+            transition: transform 0.2s, box-shadow 0.2s, opacity 1s ease; -webkit-tap-highlight-color: transparent;
+            opacity: 0; pointer-events: none; 
+            margin-bottom: 40px; margin-top: 20px;
         }
         .btn-continue.visible { opacity: 1; pointer-events: auto; }
         .btn-continue:hover { transform: scale(1.05); box-shadow: 0 20px 40px rgba(255, 45, 117, 0.5); }
         .btn-continue:active { transform: scale(0.98); }
+
+        /* ========================================= */
+        /* --- MEDIA QUERY FOR PC --- */
+        /* ========================================= */
+        @media (min-width: 768px) {
+            .letter-card {
+                max-width: 420px; 
+            }
+
+            .btn-continue {
+                max-width: 420px; 
+            }
+
+            h1 {
+                font-size: 55px; 
+                margin-bottom: 25px;
+            }
+
+            .message-box-style {
+                font-size: 16px; 
+                padding: 20px;
+            }
+
+            .bottom-decoration {
+                font-size: 24px;
+                margin-top: 20px;
+            }
+        }
+
     </style>
 </head>
 <body>
+
     <div class="bg-elements" id="bg"></div>
 
-    <div id="main-content">
-        <h1 id="header-title">Open your heart</h1>
+    <div class="letter-card" id="card">
+        <h1 id="header-title">Open Your Heart</h1>
         
-        <div class="letter-card" id="card">
-            <div class="message-container message-box-style" id="reader-box">
-                <div class="typewriter-wrapper">
-                    <span id="typewriter"></span><span class="cursor" id="cursor"></span>
-                </div>
+        <div class="message-container message-box-style" id="reader-box">
+            <div class="typewriter-wrapper">
+                <span id="typewriter"></span><span class="cursor" id="cursor"></span>
             </div>
-            <textarea class="smart-textarea message-box-style" id="writer-box" placeholder="Write your message here..."></textarea>
-            <div class="bottom-decoration" id="end-sign">❤️</div>
         </div>
-        <button class="btn-continue" id="btn-next" onclick="handleNext()">Continue</button>
+
+        <textarea class="smart-textarea message-box-style" id="writer-box" placeholder="Write your message here..."></textarea>
+
+        <div class="bottom-decoration" id="end-sign">❤️</div>
     </div>
+
+    <button class="btn-continue" id="btn-next" onclick="handleNext()">Continue</button>
 
     <script>
         const bg = document.getElementById('bg');
@@ -101,37 +218,58 @@
                 const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
                 const urlParams = new URLSearchParams(window.location.search);
                 const valentineId = urlParams.get('id');
+
                 const readerBox = document.getElementById('reader-box');
                 const writerBox = document.getElementById('writer-box');
                 const btnNext = document.getElementById('btn-next');
+                const endSign = document.getElementById('end-sign');
 
                 if (valentineId) {
                     writerBox.classList.remove('active');
                     readerBox.classList.add('active');
+
                     const { data } = await supabase.from('valentines').select('message').eq('id', valentineId).single();
-                    // ENGLISH: Loading text
                     const textToShow = data?.message || "Loading message...";
                     typeWriter(textToShow);
                 } else {
                     readerBox.classList.remove('active');
                     writerBox.classList.add('active');
                     btnNext.classList.add('visible');
+                    endSign.style.opacity = '1';
+
                     const savedText = localStorage.getItem('preview_message');
-                    // ENGLISH: Default placeholder text
-                    const defaultText = "This is the place for your words.\n\nWrite everything you want to say here. The text will appear gradually.";
+                    // ENGLISH DEFAULT TEXT
+                    const defaultText = `This is the place for your words.
+        
+Write everything you want to say here. The text will appear gradually.`;
+                    
                     writerBox.value = savedText || defaultText;
+
                     writerBox.addEventListener('input', () => {
                         localStorage.setItem('preview_message', writerBox.value);
                     });
                 }
-            } catch (err) { console.error("Error:", err); }
+            } catch (err) {
+                console.error("Error:", err);
+            }
         });
 
         function typeWriter(text) {
-            let i = 0; const target = document.getElementById('typewriter'); const btnNext = document.getElementById('btn-next'); const cursor = document.getElementById('cursor');
-            target.textContent = ''; cursor.style.display = 'inline-block';
+            let i = 0;
+            const target = document.getElementById('typewriter');
+            const btnNext = document.getElementById('btn-next');
+            const endSign = document.getElementById('end-sign');
+
             function type() {
-                if (i < text.length) { target.textContent += text.charAt(i); i++; setTimeout(type, 50); } else { cursor.style.display = 'none'; btnNext.classList.add('visible'); }
+                if (i < text.length) {
+                    target.textContent += text.charAt(i);
+                    i++;
+                    setTimeout(type, 50); 
+                } else {
+                    document.getElementById('cursor').style.display = 'none';
+                    btnNext.classList.add('visible');
+                    endSign.style.opacity = '1';
+                }
             }
             setTimeout(type, 1000);
         }
@@ -139,24 +277,31 @@
         function handleNext() {
             const urlParams = new URLSearchParams(window.location.search);
             const valentineId = urlParams.get('id');
+            const card = document.getElementById('card');
             const btn = document.getElementById('btn-next');
             const writerBox = document.getElementById('writer-box');
-            const content = document.getElementById('main-content');
 
             if (!valentineId && !writerBox.value.trim()) {
-                // ENGLISH: Alert
+                // ENGLISH ALERT
                 alert("Please write a message! ❤️");
                 return;
             }
-            if (!valentineId) { localStorage.setItem('preview_message', writerBox.value); }
 
-            // ENGLISH: Button change
-            btn.innerText = "Moving on...";
-            
-            if (content) { content.classList.remove('flying-away'); void content.offsetWidth; content.classList.add('flying-away'); }
+            if (!valentineId) {
+                localStorage.setItem('preview_message', writerBox.value);
+            }
+
+            card.style.opacity = '0';
+            card.style.transform = 'translateY(-20px)';
+            btn.style.opacity = '0';
+
             setTimeout(() => {
-                if (valentineId) { window.location.href = 'final_end.html?id=' + valentineId; } else { window.location.href = 'final_end.html'; }
-            }, 2000); 
+                if (valentineId) {
+                    window.location.href = 'final_end.html?id=' + valentineId;
+                } else {
+                    window.location.href = 'final_end.html';
+                }
+            }, 800);
         }
     </script>
 </body>
