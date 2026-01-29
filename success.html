@@ -27,10 +27,24 @@
         .buttons-row { display: flex; gap: 8px; justify-content: center; flex-wrap: wrap; }
         .btn { flex: 1; min-width: 130px; border: none; color: white; padding: 12px; border-radius: 20px; cursor: pointer; font-weight: bold; font-size: 14px; display: flex; align-items: center; justify-content: center; gap: 5px; transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275); box-shadow: 0 5px 15px rgba(255, 45, 117, 0.3); background: linear-gradient(90deg, #ff2d75, #bc26b7); }
         .btn:hover { transform: scale(1.05) translateY(-3px); box-shadow: 0 10px 25px rgba(255, 45, 117, 0.5); } .btn:active { transform: scale(0.95); }
+        
+        /* Styl pro TIP */
+        .tip-box {
+            margin-top: 25px;
+            padding: 15px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px dashed rgba(255, 255, 255, 0.3);
+            border-radius: 15px;
+            font-size: 13px;
+            color: #fff;
+            line-height: 1.5;
+        }
+        .tip-highlight { color: #ffd700; font-weight: bold; }
+
         #status-log { font-size: 12px; color: #aaa; margin-top: 10px; font-family: monospace; }
         .error-msg { color: #ff4444; font-weight: bold; margin-top: 10px; border: 1px solid #ff4444; padding: 10px; border-radius: 10px; background: rgba(255,0,0,0.1); }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
-        @media (max-width: 480px) { .card { padding: 25px 15px; width: 90%; border-radius: 25px; } h1 { font-size: 22px; } p { font-size: 14px; } .buttons-row { flex-direction: column; gap: 8px; } .btn { width: 100%; padding: 12px; } p[style*="opacity:0.5"] { margin-top: 20px !important; font-size: 11px !important; } }
+        @media (max-width: 480px) { .card { padding: 25px 15px; width: 90%; border-radius: 25px; } h1 { font-size: 22px; } p { font-size: 14px; } .buttons-row { flex-direction: column; gap: 8px; } .btn { width: 100%; padding: 12px; } }
     </style>
 </head>
 <body>
@@ -45,7 +59,7 @@
 
         <div id="result-content">
             <h1><span class="gradient-text">Done!</span> <span class="emoji">💚</span></h1>
-            <p>Here is the link for her:</p>
+            <p>Here is the link:</p>
             
             <div id="qrcode"></div>
             
@@ -62,7 +76,11 @@
                 </div>
             </div>
             
-            <p style="margin-top:25px; font-size:12px; opacity:0.5;">Thank you for your purchase!</p>
+            <div class="tip-box">
+                <span class="tip-highlight">💡 Tip:</span> Print the QR code and stick it on a gift.
+            </div>
+            
+            <p style="margin-top:20px; font-size:12px; opacity:0.5;">Thank you for your purchase!</p>
         </div>
     </div>
 
@@ -107,7 +125,8 @@
             document.getElementById('loading-state').style.display = 'none';
             document.getElementById('result-content').style.display = 'block';
             let baseUrl = window.location.href.substring(0, window.location.href.lastIndexOf('/'));
-            const finalUrl = `${baseUrl}/valentines.html?id=${token}`;
+            // Odkazujeme na index.html (kde začíná příběh pro příjemce)
+            const finalUrl = `${baseUrl}/?id=${token}`;
             document.getElementById('final-link').value = finalUrl;
             new QRCode(document.getElementById("qrcode"), { text: finalUrl, width: 160, height: 160, colorDark : "#000000", colorLight : "#ffffff", correctLevel : QRCode.CorrectLevel.H });
             localStorage.clear();
