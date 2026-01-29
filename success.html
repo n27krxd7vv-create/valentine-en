@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Payment Successful! 🎉</title>
+    <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root { --bg-deep: #0f0c1d; --accent: #ff2d75; --glass: rgba(255, 255, 255, 0.05); --glass-border: rgba(255, 255, 255, 0.1); --success: #4ade80; }
+        html { height: 100%; }
+        body { margin: 0; padding: 20px 0; font-family: 'Inter', sans-serif; background: #0f0c1d; color: white; display: flex; flex-direction: column; min-height: 100dvh; overflow-y: auto; overflow-x: hidden; box-sizing: border-box; }
+        .bg-glow { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: radial-gradient(circle at 50% 50%, #2a1b3d 0%, #0f0c1d 80%); z-index: -1; pointer-events: none; }
+        .card { width: 90%; max-width: 400px; background: var(--glass); border: 1px solid var(--glass-border); backdrop-filter: blur(20px); border-radius: 30px; padding: 30px; text-align: center; box-shadow: 0 30px 60px rgba(0,0,0,0.6); animation: fadeIn 1s ease-out; margin: auto; }
+        h1 { margin: 0 0 10px 0; font-size: 26px; }
+        .gradient-text { background: linear-gradient(to right, var(--success), #22c55e); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .emoji { font-style: normal; }
+        p { color: rgba(255,255,255,0.8); margin-bottom: 15px; font-size: 15px; }
+        .spinner { width: 30px; height: 30px; border: 3px solid rgba(255,255,255,0.3); border-top-color: var(--accent); border-radius: 50%; animation: spin 1s linear infinite; margin: 20px auto; }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        #result-content { display: none; }
+        #qrcode { background: white; padding: 10px; border-radius: 15px; display: inline-block; margin: 15px 0; box-shadow: 0 5px 15px rgba(0,0,0,0.2); }
+        .link-container { display: flex; flex-direction: column; gap: 10px; margin-top: 5px; }
+        .link-input { width: 100%; padding: 10px; background: rgba(0,0,0,0.3); border: 1px solid var(--glass-border); color: #fff; text-align: center; border-radius: 10px; font-size: 13px; font-family: monospace; box-sizing: border-box; }
+        .buttons-row { display: flex; gap: 8px; justify-content: center; flex-wrap: wrap; }
+        .btn { flex: 1; min-width: 130px; border: none; color: white; padding: 12px; border-radius: 20px; cursor: pointer; font-weight: bold; font-size: 14px; display: flex; align-items: center; justify-content: center; gap: 5px; transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275); box-shadow: 0 5px 15px rgba(255, 45, 117, 0.3); background: linear-gradient(90deg, #ff2d75, #bc26b7); }
+        .btn:hover { transform: scale(1.05) translateY(-3px); box-shadow: 0 10px 25px rgba(255, 45, 117, 0.5); } .btn:active { transform: scale(0.95); }
+        #status-log { font-size: 12px; color: #aaa; margin-top: 10px; font-family: monospace; }
+        .error-msg { color: #ff4444; font-weight: bold; margin-top: 10px; border: 1px solid #ff4444; padding: 10px; border-radius: 10px; background: rgba(255,0,0,0.1); }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+        @media (max-width: 480px) { .card { padding: 25px 15px; width: 90%; border-radius: 25px; } h1 { font-size: 22px; } p { font-size: 14px; } .buttons-row { flex-direction: column; gap: 8px; } .btn { width: 100%; padding: 12px; } p[style*="opacity:0.5"] { margin-top: 20px !important; font-size: 11px !important; } }
+    </style>
+</head>
+<body>
+    <div class="bg-glow"></div>
+    <div class="card">
+        <div id="loading-state">
+            <h1><span class="gradient-text">Payment Received!</span> <span class="emoji">✨</span></h1>
+            <p>Creating your unique story...</p>
+            <div class="spinner"></div>
+            <div id="status-log">System initialization...</div>
+        </div>
+
+        <div id="result-content">
+            <h1><span class="gradient-text">Done!</span> <span class="emoji">💚</span></h1>
+            <p>Here is the link for her:</p>
+            
+            <div id="qrcode"></div>
+            
+            <div class="link-container">
+                <input type="text" class="link-input" id="final-link" readonly>
+                
+                <div class="buttons-row">
+                    <button class="btn" onclick="copyLink()">
+                        <span>Copy Link</span> 📋
+                    </button>
+                    <button class="btn" onclick="downloadQR()">
+                        <span>Save QR Code</span> 💾
+                    </button>
+                </div>
+            </div>
+            
+            <p style="margin-top:25px; font-size:12px; opacity:0.5;">Thank you for your purchase!</p>
+        </div>
+    </div>
+
+    <script>
+        function log(message) { document.getElementById('status-log').innerText = message; console.log(message); }
+        function showError(msg) { document.querySelector('.spinner').style.display = 'none'; const logEl = document.getElementById('status-log'); logEl.innerText = msg; logEl.className = 'error-msg'; }
+
+        window.addEventListener('load', async () => {
+            log("1/6: Starting application...");
+            if (!window.supabase) { showError("ERROR: Could not load Supabase. Check internet connection."); return; }
+            const SUPABASE_URL = 'https://ebqqfbacsgskoueoaugc.supabase.co';
+            const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVicXFmYmFjc2dza291ZW9hdWdjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Njc4ODMyMzQsImV4cCI6MjA4MzQ1OTIzNH0.Zv5o1o48BW5GXNyh17DGuicSjjrLkW8L9beuHHkhQjU';
+            const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+            log("2/6: Checking stored data...");
+            const storedImage = localStorage.getItem('preview_image_base64');
+            const storedMessage = localStorage.getItem('preview_message');
+            if (!storedImage || !storedMessage) { log("⚠️ Data missing (test mode)."); }
+
+            try {
+                let token;
+                if (storedImage && storedMessage) {
+                    log("3/6: Uploading image...");
+                    const res = await fetch(storedImage);
+                    const blob = await res.blob();
+                    const fileExt = blob.type.split('/')[1] || 'png';
+                    token = crypto.randomUUID();
+                    const filePath = `pf/${token}/image.${fileExt}`;
+                    const { error: uploadError } = await supabase.storage.from('uploads').upload(filePath, blob);
+                    if (uploadError) throw new Error("Upload error: " + uploadError.message);
+                    const { data: { publicUrl } } = supabase.storage.from('uploads').getPublicUrl(filePath);
+                    log("5/6: Saving message...");
+                    const { error: insertError } = await supabase.from('valentines').insert([{ id: token, message: storedMessage, photo_url: publicUrl }]);
+                    if (insertError) throw new Error("Database error: " + insertError.message);
+                } else { token = "demo-" + Math.random().toString(36).substring(7); }
+                log("6/6: Done!");
+                showResult(token);
+            } catch (err) { showError("ERROR: " + err.message); }
+        });
+
+        function showResult(token) {
+            document.getElementById('loading-state').style.display = 'none';
+            document.getElementById('result-content').style.display = 'block';
+            let baseUrl = window.location.href.substring(0, window.location.href.lastIndexOf('/'));
+            const finalUrl = `${baseUrl}/valentines.html?id=${token}`;
+            document.getElementById('final-link').value = finalUrl;
+            new QRCode(document.getElementById("qrcode"), { text: finalUrl, width: 160, height: 160, colorDark : "#000000", colorLight : "#ffffff", correctLevel : QRCode.CorrectLevel.H });
+            localStorage.clear();
+        }
+
+        function copyLink() {
+            const copyText = document.getElementById("final-link");
+            copyText.select(); copyText.setSelectionRange(0, 99999);
+            navigator.clipboard.writeText(copyText.value);
+            const btn = document.querySelector('button[onclick="copyLink()"] span');
+            const originalText = btn.innerText;
+            btn.innerText = "Copied!";
+            setTimeout(() => { btn.innerText = originalText; }, 2000);
+        }
+
+        function downloadQR() {
+            const qrImage = document.querySelector('#qrcode img');
+            if (qrImage && qrImage.src) { const link = document.createElement('a'); link.href = qrImage.src; link.download = 'valentine-qr-code.png'; document.body.appendChild(link); link.click(); document.body.removeChild(link); } else { alert("QR Code is generating..."); }
+        }
+    </script>
+</body>
+</html>
