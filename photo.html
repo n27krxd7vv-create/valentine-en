@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Digital Valentine | Editor</title>
+    <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Imperial+Script&family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
+
+    <style>
+        :root { --bg-deep: #0f0c1d; --accent: #ff2d75; --blue-glow: #4facfe; --glass: rgba(255, 255, 255, 0.07); --glass-border: rgba(255, 255, 255, 0.15); }
+        
+        body, html { 
+            margin: 0; padding: 0; 
+            width: 100%; 
+            min-height: 100dvh; 
+            font-family: 'Inter', system-ui, -apple-system, sans-serif; 
+            background-color: #0f0c1d; 
+            background-image: radial-gradient(circle at center, #1e1333 0%, #0f0c1d 100%);
+            background-attachment: fixed; background-size: cover;
+            color: white; 
+            overflow-x: hidden; 
+            overflow-y: auto;   
+            display: flex; justify-content: center; align-items: center; 
+            user-select: none; -webkit-user-select: none;
+        }
+
+        .bg-elements { position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 1; overflow: hidden; }
+        .floating-heart { position: absolute; color: var(--accent); opacity: 0.8; text-shadow: 0 0 10px rgba(255, 45, 117, 0.5); animation: floatUp linear infinite; }
+        @keyframes floatUp { 0% { transform: translateY(110vh) scale(0.5) rotate(0deg); opacity: 0; } 10% { opacity: 0.8; } 100% { transform: translateY(-10vh) scale(1.2) rotate(360deg); opacity: 0; } }
+
+        #main-content { 
+            z-index: 20; width: 90%; max-width: 420px; text-align: center; 
+            opacity: 0; transform: translateY(20px); animation: fadeIn 1s ease-out forwards; 
+            position: relative; transition: opacity 0.8s ease; 
+            padding-top: 40px; padding-bottom: 100px; 
+            margin: auto; 
+        }
+
+        @keyframes fadeIn { to { opacity: 1; transform: translateY(0); } }
+        .flying-away { animation: flyAway 1.2s cubic-bezier(0.55, 0.055, 0.675, 0.19) forwards; }
+        @keyframes flyAway { 0% { transform: translateY(0) scale(1); opacity: 1; } 100% { transform: translateY(-120vh) scale(0.8); opacity: 0; } }
+
+        h2 { font-weight: 300; letter-spacing: 2px; margin-bottom: 5px; opacity: 0.8; font-size: 14px; text-transform: uppercase; }
+        
+        h1 { 
+            font-family: 'Imperial Script', cursive; 
+            font-size: 55px; margin: 0 0 10px 0; 
+            background: linear-gradient(to right, #fff, var(--accent)); 
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent; 
+            text-transform: none; font-weight: 400; padding: 0 20px; line-height: 1.2;
+        }
+        
+        .subtitle { opacity: 0.6; margin-bottom: 30px; font-size: 15px; }
+
+        .glass-card { background: transparent; padding: 0; margin-bottom: 30px; display: flex; flex-direction: column; align-items: center; }
+
+        /* UPLOAD AREA */
+        .upload-area { 
+            width: 100%; max-width: 350px; aspect-ratio: 4/5; 
+            border-radius: 25px; 
+            position: relative; overflow: hidden; 
+            border: 3px solid transparent; 
+            background-image: linear-gradient(#1e1333, #1e1333), linear-gradient(135deg, var(--blue-glow), var(--accent)); 
+            background-origin: border-box; background-clip: content-box, border-box;
+            box-shadow: 0 0 50px rgba(79, 172, 254, 0.5), 0 0 50px rgba(255, 45, 117, 0.5);
+            transition: transform 0.3s, box-shadow 0.3s; 
+            display: flex; justify-content: center; align-items: center; flex-direction: column;
+            cursor: pointer;
+            touch-action: none; 
+            transform: translateZ(0);
+        }
+
+        #preview { 
+            position: absolute; width: auto; height: auto; max-width: none; max-height: none;
+            display: none; z-index: 1; transform-origin: center center; will-change: transform;
+        }
+        
+        .upload-area.has-image { cursor: grab; }
+        .upload-area.has-image:active { cursor: grabbing; }
+
+        .plus-btn { width: 60px; height: 60px; background: var(--accent); border-radius: 50%; display: flex; justify-content: center; align-items: center; font-size: 30px; margin-bottom: 15px; box-shadow: 0 0 20px rgba(255, 45, 117, 0.4); z-index: 2; pointer-events: none; }
+        .upload-text { font-size: 12px; font-weight: bold; letter-spacing: 2px; z-index: 2; text-shadow: 0 2px 10px rgba(0,0,0,0.8); pointer-events: none; }
+
+        .hint-overlay {
+            position: absolute; bottom: 10px; left: 0; width: 100%; text-align: center;
+            font-size: 11px; color: rgba(255,255,255,0.6); pointer-events: none;
+            opacity: 0; transition: opacity 0.5s; z-index: 5;
+        }
+        .upload-area.has-image .hint-overlay { opacity: 1; animation: fadeOutHint 3s forwards 2s; }
+        @keyframes fadeOutHint { to { opacity: 0; } }
+
+        .btn-continue { width: 100%; background: linear-gradient(90deg, #ff2d75, #bc26b7); border: none; padding: 18px; border-radius: 100px; color: white; font-weight: 600; font-size: 18px; cursor: pointer; box-shadow: 0 15px 30px rgba(255, 45, 117, 0.3); transition: transform 0.2s, box-shadow 0.2s; -webkit-tap-highlight-color: transparent; }
+        .btn-continue:hover { transform: scale(1.05); box-shadow: 0 20px 40px rgba(255, 45, 117, 0.5); }
+        .btn-continue:active { transform: scale(0.98); }
+    </style>
+</head>
+<body>
+
+    <div class="bg-elements" id="bg"></div>
+
+    <div id="main-content">
+        <h2 id="top-title">INTERACTIVE WEB VALENTINE</h2>
+        
+        <h1 id="main-title">Say it with a photo</h1>
+        <p class="subtitle" id="sub-title">Choose the best one.</p>
+
+        <div class="glass-card">
+            <div class="upload-area" id="upload-label">
+                <img id="preview" src="">
+                <div class="plus-btn" id="plus-icon">+</div>
+                <div class="upload-text" id="upload-text">YOUR PHOTO</div>
+                <div class="hint-overlay">Move: drag | Zoom: scroll / pinch</div>
+            </div>
+            
+            <input type="file" id="img-input" hidden accept="image/*">
+        </div>
+
+        <button class="btn-continue" id="btn-submit" onclick="submitForm()">Continue</button>
+    </div>
+
+    <canvas id="crop-canvas" style="display:none;"></canvas>
+
+    <script>
+        const bg = document.getElementById('bg');
+        const heartIcons = ['❤️', '💖', '💗', '🌹', '✨', '💕'];
+        function createHeart() {
+            const heart = document.createElement('div'); heart.className = 'floating-heart'; heart.innerHTML = heartIcons[Math.floor(Math.random() * heartIcons.length)]; heart.style.left = Math.random() * 100 + 'vw'; heart.style.fontSize = (Math.random() * 25 + 20) + 'px'; heart.style.animationDuration = (Math.random() * 5 + 6) + 's'; bg.appendChild(heart); setTimeout(() => { heart.remove(); }, 11000);
+        }
+        setInterval(createHeart, 400);
+
+        const input = document.getElementById('img-input');
+        const preview = document.getElementById('preview');
+        const uploadArea = document.getElementById('upload-label');
+        const plusIcon = document.getElementById('plus-icon');
+        const uploadText = document.getElementById('upload-text');
+
+        // State variables
+        let state = { scale: 1, posX: 0, posY: 0, isDragging: false, startX: 0, startY: 0, lastPosX: 0, lastPosY: 0, initialScale: 1 };
+
+        uploadArea.addEventListener('click', () => {
+            if (!uploadArea.classList.contains('has-image')) {
+                input.click();
+            }
+        });
+
+        input.addEventListener('change', function() {
+            const file = this.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    preview.src = e.target.result;
+                    preview.onload = () => { initImagePosition(); };
+                    preview.style.display = 'block';
+                    plusIcon.style.display = 'none';
+                    uploadText.style.display = 'none';
+                    uploadArea.classList.add('has-image');
+                }
+                reader.readAsDataURL(file);
+            }
+        });
+
+        function initImagePosition() {
+            const containerW = uploadArea.clientWidth;
+            const containerH = uploadArea.clientHeight;
+            const imgW = preview.naturalWidth;
+            const imgH = preview.naturalHeight;
+            const ratioW = containerW / imgW;
+            const ratioH = containerH / imgH;
+            
+            state.initialScale = Math.max(ratioW, ratioH);
+            state.scale = state.initialScale;
+            state.posX = 0; state.posY = 0;
+            state.lastPosX = 0; state.lastPosY = 0;
+            updateVisuals();
+        }
+
+        function updateVisuals() {
+            preview.style.transform = `translate(${state.posX}px, ${state.posY}px) scale(${state.scale})`;
+        }
+
+        uploadArea.addEventListener('wheel', (e) => {
+            if (!preview.src) return;
+            e.preventDefault();
+            const zoomSpeed = 0.1;
+            const delta = e.deltaY > 0 ? -1 : 1;
+            const newScale = state.scale + (delta * zoomSpeed * state.scale);
+            if (newScale >= state.initialScale * 0.5 && newScale <= state.initialScale * 5) {
+                state.scale = newScale;
+                updateVisuals();
+            }
+        });
+
+        uploadArea.addEventListener('pointerdown', (e) => {
+            if (!preview.src) return;
+            state.isDragging = true;
+            state.startX = e.clientX;
+            state.startY = e.clientY;
+            uploadArea.style.cursor = 'grabbing';
+            uploadArea.setPointerCapture(e.pointerId); 
+        });
+
+        uploadArea.addEventListener('pointermove', (e) => {
+            if (!state.isDragging) return;
+            e.preventDefault();
+            const deltaX = e.clientX - state.startX;
+            const deltaY = e.clientY - state.startY;
+            state.posX = state.lastPosX + deltaX;
+            state.posY = state.lastPosY + deltaY;
+            updateVisuals();
+        });
+
+        uploadArea.addEventListener('pointerup', (e) => {
+            state.isDragging = false;
+            state.lastPosX = state.posX;
+            state.lastPosY = state.posY;
+            uploadArea.style.cursor = 'grab';
+            uploadArea.releasePointerCapture(e.pointerId);
+        });
+
+        // Gestures (mobile) - Pinch Zoom
+        let initialPinchDist = 0;
+        let initialScaleAtPinch = 0;
+        uploadArea.addEventListener('touchstart', (e) => {
+            if (e.touches.length === 2) {
+                state.isDragging = false;
+                initialPinchDist = Math.hypot(e.touches[0].pageX - e.touches[1].pageX, e.touches[0].pageY - e.touches[1].pageY);
+                initialScaleAtPinch = state.scale;
+            }
+        });
+        uploadArea.addEventListener('touchmove', (e) => {
+            if (e.touches.length === 2) {
+                e.preventDefault();
+                const dist = Math.hypot(e.touches[0].pageX - e.touches[1].pageX, e.touches[0].pageY - e.touches[1].pageY);
+                state.scale = initialScaleAtPinch * (dist / initialPinchDist);
+                updateVisuals();
+            }
+        });
+
+        // --- SUPABASE & CROP ---
+        document.addEventListener("DOMContentLoaded", async () => {
+            try {
+                const SUPABASE_URL = 'https://ebqqfbacsgskoueoaugc.supabase.co';
+                const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVicXFmYmFjc2dza291ZW9hdWdjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Njc4ODMyMzQsImV4cCI6MjA4MzQ1OTIzNH0.Zv5o1o48BW5GXNyh17DGuicSjjrLkW8L9beuHHkhQjU';
+                const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+                const urlParams = new URLSearchParams(window.location.search);
+                const valentineId = urlParams.get('id');
+
+                if (valentineId) {
+                    // ENGLISH TRANSLATIONS FOR RECEIVER MODE
+                    document.getElementById('main-title').innerText = "Beautiful Moment";
+                    document.getElementById('sub-title').innerText = "This moment is ours.";
+                    document.getElementById('upload-text').innerText = "LOADING...";
+                    if(plusIcon) plusIcon.style.display = 'none';
+                    document.getElementById('upload-label').style.pointerEvents = 'none';
+
+                    const { data } = await supabase.from('valentines').select('photo_url').eq('id', valentineId).single();
+                    if (data && data.photo_url) {
+                        preview.src = data.photo_url;
+                        preview.style.display = 'block';
+                        preview.style.width = '100%'; preview.style.height = '100%';
+                        preview.style.objectFit = 'cover'; preview.style.transform = 'none';
+                        if(uploadText) uploadText.style.display = 'none';
+                    }
+                }
+            } catch (err) { console.error("Error:", err); }
+        });
+
+        function submitForm() {
+            const btn = document.getElementById('btn-submit');
+            const urlParams = new URLSearchParams(window.location.search);
+            
+            if (urlParams.get('id')) {
+                document.getElementById('main-content').classList.add('flying-away');
+                setTimeout(() => { window.location.href = 'letter.html?id=' + urlParams.get('id'); }, 1000);
+                return;
+            }
+            
+            // ENGLISH ALERT
+            if (!preview.src || preview.style.display === 'none') { alert("Please select a photo!"); return; }
+
+            // ENGLISH BUTTON STATUS
+            btn.innerText = "Saving...";
+            try {
+                const canvas = document.getElementById('crop-canvas');
+                const ctx = canvas.getContext('2d');
+                const rect = uploadArea.getBoundingClientRect();
+                const quality = 2;
+                canvas.width = rect.width * quality; canvas.height = rect.height * quality;
+                ctx.fillStyle = "#1e1333"; ctx.fillRect(0, 0, canvas.width, canvas.height);
+                ctx.translate(canvas.width / 2, canvas.height / 2);
+                ctx.translate(state.posX * quality, state.posY * quality);
+                ctx.scale(state.scale * quality, state.scale * quality);
+                ctx.drawImage(preview, -preview.naturalWidth / 2, -preview.naturalHeight / 2);
+                
+                localStorage.setItem('preview_image_base64', canvas.toDataURL('image/jpeg', 0.9));
+                
+                // ENGLISH BUTTON STATUS
+                btn.innerText = "Moving on...";
+                document.getElementById('main-content').classList.add('flying-away');
+                
+                setTimeout(() => { window.location.href = 'letter.html'; }, 1000);
+                
+            } catch (err) {
+                localStorage.setItem('preview_image_base64', preview.src);
+                window.location.href = 'letter.html';
+            }
+        }
+    </script>
+</body>
+</html>
