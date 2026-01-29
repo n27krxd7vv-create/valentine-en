@@ -7,48 +7,96 @@
     <script src="https://unpkg.com/@dotlottie/player-component@latest/dist/dotlottie-player.mjs" type="module"></script>
     
     <style>
-        :root { --bg-deep: #0f0c1d; --accent: #ff2d75; }
+        :root {
+            --bg-deep: #0f0c1d;
+            --accent: #ff2d75;
+        }
+
         body, html {
-            margin: 0; padding: 0; width: 100%; 
+            margin: 0; padding: 0; 
+            width: 100%; 
             min-height: 100dvh;
             font-family: 'Inter', system-ui, -apple-system, sans-serif;
+            
             background-color: #0f0c1d;
             background-image: radial-gradient(circle at center, #1e1333 0%, #0f0c1d 100%);
-            background-attachment: fixed; background-size: cover; background-repeat: no-repeat;
+            background-attachment: fixed; 
+            background-size: cover;
+            background-repeat: no-repeat;
+            
             color: white; overflow: hidden;
             display: flex; justify-content: center; align-items: center;
         }
+
         #letter-screen {
-            display: flex; flex-direction: column; justify-content: center; align-items: center;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
             width: 100%; height: 100%;
             animation: fadeInPage 1.5s ease-out forwards;
             transition: opacity 1s ease;
-            cursor: default; -webkit-tap-highlight-color: transparent;
+            cursor: default; 
+            -webkit-tap-highlight-color: transparent;
         }
+        
         #letter-screen.clickable { cursor: pointer; }
-        @keyframes fadeInPage { from { opacity: 0; } to { opacity: 1; } }
+
+        @keyframes fadeInPage {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
         .lottie-wrapper {
-            width: 300px; height: 300px; display: flex; justify-content: center; align-items: center;
+            width: 300px;
+            height: 300px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
             transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
         }
-        dotlottie-player { filter: drop-shadow(0 0 60px rgba(255, 45, 117, 0.3)); width: 100%; height: 100%; }
-        #letter-screen.clickable:hover .lottie-wrapper { transform: scale(1.08); }
-        .intro-text {
-            margin-top: 30px; letter-spacing: 4px; text-transform: uppercase; font-size: 14px; font-weight: 600;
-            color: rgba(255, 255, 255, 0.9); animation: pulse 2.5s infinite; opacity: 0; transition: opacity 1s ease;
+
+        dotlottie-player {
+            filter: drop-shadow(0 0 60px rgba(255, 45, 117, 0.3));
+            width: 100%; height: 100%;
         }
+
+        #letter-screen.clickable:hover .lottie-wrapper {
+            transform: scale(1.08);
+        }
+
+        .intro-text {
+            margin-top: 30px;
+            letter-spacing: 4px;
+            text-transform: uppercase;
+            font-size: 14px;
+            font-weight: 600;
+            color: rgba(255, 255, 255, 0.9);
+            animation: pulse 2.5s infinite;
+            opacity: 0; 
+            transition: opacity 1s ease;
+        }
+        
         .intro-text.visible { opacity: 1; }
+
         @keyframes pulse { 0%, 100% { opacity: 0.6; } 50% { opacity: 1; } }
+
     </style>
 </head>
 <body>
+
     <div id="letter-screen" onclick="openLetter()">
+        
         <div class="lottie-wrapper">
             <dotlottie-player 
                 src="https://lottie.host/998c1ba2-d0a7-466f-ba92-ee01e6812233/xxRo5wJMWT.lottie" 
-                background="transparent" speed="1" loop autoplay>
+                background="transparent" 
+                speed="1" 
+                loop 
+                autoplay>
             </dotlottie-player>
         </div>
+
         <div class="intro-text" id="text">OPEN THE LETTER</div>
     </div>
 
@@ -67,7 +115,8 @@
 
         function openLetter() {
             if (canClick) {
-                canClick = false;
+                canClick = false; 
+                
                 screen.style.opacity = '0';
                 screen.style.transform = 'scale(1.1)';
                 screen.style.transition = 'opacity 1s ease, transform 1s ease';
@@ -75,6 +124,7 @@
                 setTimeout(() => {
                     const urlParams = new URLSearchParams(window.location.search);
                     const valentineId = urlParams.get('id');
+
                     if (valentineId) {
                         window.location.href = 'final.html?id=' + valentineId;
                     } else {
