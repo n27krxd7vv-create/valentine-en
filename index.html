@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Digital Valentine | Create Yours</title>
+    <style>
+        /* Basic settings and mobile fix */
+        * { box-sizing: border-box; }
+
+        :root { --bg-deep: #0f0c1d; --accent: #ff2d75; --blue-glow: #4facfe; }
+        
+        body { 
+            margin: 0; font-family: 'Inter', system-ui, -apple-system, sans-serif; 
+            background: #0f0c1d; color: white; 
+            display: flex; flex-direction: column; align-items: center; 
+            min-height: 100vh; text-align: center; overflow-x: hidden; 
+        }
+        
+        /* Background */
+        .bg-glow { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: radial-gradient(circle at 50% 50%, #2a1b3d 0%, #0f0c1d 80%); z-index: -1; }
+
+        /* Main Section */
+        header { padding: 40px 20px 20px 20px; max-width: 800px; animation: fadeIn 1s ease-out; }
+        
+        h1 { 
+            font-size: clamp(32px, 6vw, 56px); 
+            margin: 0 0 15px 0; line-height: 1.1;
+            background: linear-gradient(to right, #fff, var(--accent)); 
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent; 
+            text-transform: uppercase; letter-spacing: 1px; font-weight: 800;
+        }
+        
+        p { 
+            font-size: clamp(15px, 4vw, 18px); 
+            color: rgba(255,255,255,0.8); 
+            margin: 0; line-height: 1.5; font-weight: 300;
+        }
+
+        /* --- VIDEO CONTAINER --- */
+        .video-wrapper {
+            width: 90%; max-width: 600px;
+            aspect-ratio: 16/9;
+            margin: 30px 0; 
+            position: relative; 
+            display: flex; justify-content: center; align-items: center;
+            border-radius: 20px;
+            
+            border: 2px solid transparent;
+            background-image: linear-gradient(#0f0c1d, #0f0c1d), 
+                              linear-gradient(135deg, var(--blue-glow), var(--accent));
+            background-origin: border-box;
+            background-clip: content-box, border-box;
+            
+            box-shadow: -10px -10px 40px rgba(79, 172, 254, 0.15), 
+                        10px 10px 40px rgba(255, 45, 117, 0.15);
+        }
+        
+        .video-placeholder { font-size: 16px; color: rgba(255,255,255,0.4); display: flex; align-items: center; gap: 10px; }
+
+        /* Button */
+        .cta-btn {
+            background: linear-gradient(90deg, #ff2d75, #bc26b7);
+            border: none; padding: 18px 50px; border-radius: 100px;
+            color: white; font-weight: 600; font-size: 18px; cursor: pointer;
+            box-shadow: 0 10px 30px rgba(255, 45, 117, 0.3);
+            transition: transform 0.2s, box-shadow 0.2s; text-decoration: none; display: inline-block;
+            margin-bottom: 40px;
+        }
+        .cta-btn:hover { transform: scale(1.05); box-shadow: 0 15px 40px rgba(255, 45, 117, 0.5); }
+
+        /* Steps Section */
+        .steps { 
+            display: flex; flex-wrap: wrap; justify-content: center; gap: 15px; 
+            padding: 0 20px 60px 20px;
+            max-width: 900px; width: 100%;
+        }
+        
+        /* === CARDS === */
+        .step-card { 
+            flex: 1; min-width: 200px; max-width: 280px;
+            background: rgba(255,255,255,0.03); 
+            padding: 20px; border-radius: 15px; 
+            border: 1px solid rgba(255,255,255,0.1); 
+            backdrop-filter: blur(10px);
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            opacity: 0;
+            animation: slideDown 0.8s ease-out forwards;
+        }
+
+        .step-card:hover {
+            transform: scale(1.08) translateY(-10px); 
+            box-shadow: 0 20px 40px rgba(255, 45, 117, 0.15); 
+            background: rgba(255,255,255,0.08); 
+            border-color: rgba(255,255,255,0.4); 
+            z-index: 10; 
+        }
+
+        .step-card:nth-child(1) { animation-delay: 0.1s; }
+        .step-card:nth-child(2) { animation-delay: 0.3s; }
+        .step-card:nth-child(3) { animation-delay: 0.5s; }
+
+        .step-icon { font-size: 24px; margin-bottom: 10px; display: block; }
+        h3 { color: var(--accent); margin: 0 0 5px 0; font-size: 16px; }
+        .step-desc { font-size: 13px; color: rgba(255,255,255,0.6); margin: 0; line-height: 1.4; }
+
+        /* === ANIMATIONS === */
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+        
+        @keyframes slideDown { 
+            from { opacity: 0; transform: translateY(-50px); } 
+            to { opacity: 1; transform: translateY(0); } 
+        }
+        
+        /* Mobile adjustments */
+        @media (max-width: 600px) {
+            .steps { flex-direction: column; align-items: center; width: 100%; padding: 0 20px 40px 20px; }
+            .step-card { width: 100%; max-width: none; display: flex; align-items: center; text-align: left; gap: 15px; padding: 15px; transform: none !important; }
+            .step-card:hover { transform: none; box-shadow: none; }
+            .step-icon { margin: 0; font-size: 20px; }
+            .step-content { flex: 1; }
+            .video-wrapper { width: 90%; margin: 20px 0; }
+        }
+    </style>
+</head>
+<body>
+    <div class="bg-glow"></div>
+
+    <header>
+        <h1>Give an emotion,<br>not just a card.</h1>
+        <p>Create an unforgettable digital valentine in 2 minutes. <br>Upload a photo, write a message, and let the story unfold.</p>
+    </header>
+
+    <div class="video-wrapper">
+        <div class="video-placeholder">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="white" style="opacity:0.8"><path d="M8 5v14l11-7z"/></svg> 
+            Video preview here
+        </div>
+    </div>
+
+    <a href="valentines.html" class="cta-btn" onclick="localStorage.clear()">Create Valentine ✨</a>
+
+    <div class="steps">
+        <div class="step-card">
+            <span class="step-icon">📸</span>
+            <div class="step-content">
+                <h3>1. Upload a memory</h3>
+                <p class="step-desc">Choose a photo that captures <br>a special moment.</p>
+            </div>
+        </div>
+        <div class="step-card">
+            <span class="step-icon">💌</span>
+            <div class="step-content">
+                <h3>2. Write a message</h3>
+                <p class="step-desc">Write your personal words <br>straight from the heart.</p>
+            </div>
+        </div>
+        <div class="step-card">
+            <span class="step-icon">🎁</span>
+            <div class="step-content">
+                <h3>3. Send the link</h3>
+                <p class="step-desc">Send the unique link for her <br>to discover the story.</p>
+            </div>
+        </div>
+    </div>
+
+</body>
+</html>
